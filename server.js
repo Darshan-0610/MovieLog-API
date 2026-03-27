@@ -16,19 +16,16 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ── TMDB CREDENTIALS ─────────────────────────────────────────────────────────
-// Using Bearer token (v4 auth) — more reliable than API key query param
-const TMDB_BEARER = process.env.TMDB_BEARER ||
-  "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJkZWQ1NzUzMzZhZGI1ODYxMmM5M2NkMDdmYWFmMWY1OCIsInN1YiI6IjY1YzVmOTVhZjZiNWYyZmVjOGJmZmM3ZCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.placeholder";
-
-// Also keep API key as fallback
+// Bearer token (Read Access Token from TMDB settings) — v4 auth
+// API key used as fallback in query param for older endpoints
 const TMDB_API_KEY = process.env.TMDB_API_KEY || "ded575336adb58612c93cd07faaf1f58";
 
 const TMDB_BASE = "https://api.themoviedb.org/3";
 const TMDB_IMG = "https://image.tmdb.org/t/p/w500";
 
-// Headers for all TMDB requests — Bearer token is the correct modern auth
+// Use API key in query param — guaranteed to work with any TMDB account
+// Bearer token approach requires exact token; query param is more reliable
 const tmdbHeaders = {
-  "Authorization": `Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJkZWQ1NzUzMzZhZGI1ODYxMmM5M2NkMDdmYWFmMWY1OCIsInN1YiI6IjY1YzVmOTVhZjZiNWYyZmVjOGJmZmM3ZCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ZdtM7QjCpuVsIbyV33UVAVmQYFND1zX4eO5unEGgyX8`,
   "accept": "application/json",
 };
 
@@ -118,8 +115,10 @@ const parseList = v =>
     Array.isArray(v) ? v : [];
 
 // ── TMDB FETCH WRAPPER ────────────────────────────────────────────────────────
+// Appends api_key to every TMDB request — simple and reliable
 async function tmdbGet(path) {
-  const url = `${TMDB_BASE}${path}`;
+  const sep = path.includes("?") ? "&" : "?";
+  const url = `${TMDB_BASE}${path}${sep}api_key=${TMDB_API_KEY}`;
   const resp = await fetch(url, { headers: tmdbHeaders });
   if (!resp.ok) {
     const text = await resp.text();

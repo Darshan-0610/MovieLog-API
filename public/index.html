@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CINEVAULT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+  <div class="grain"></div>
+
+  <!-- ── HEADER ── -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-mark">◈</span>
+        <span class="logo-name">CINEVAULT</span>
+        <span class="logo-tag">REST API</span>
+      </div>
+      <nav class="nav">
+        <button class="nav-btn active" data-view="vault">VAULT</button>
+        <button class="nav-btn" data-view="discover">DISCOVER</button>
+        <button class="nav-btn" data-view="add">ADD FILM</button>
+        <button class="nav-btn" data-view="stats">ANALYTICS</button>
+      </nav>
+      <div class="live-badge"><span class="live-dot"></span>API LIVE</div>
+    </div>
+  </header>
+
+  <!-- ── TICKER ── -->
+  <div class="ticker-outer">
+    <div class="ticker-inner" id="ticker">
+      <span class="ticker-text">◈ CINEVAULT — CURATED CINEMA DATABASE &nbsp;·&nbsp; POWERED BY TMDB &nbsp;·&nbsp; REST API &nbsp;·&nbsp;</span>
+    </div>
+  </div>
+
+  <main class="main">
+
+    <!-- ══════════════════ VAULT VIEW ══════════════════ -->
+    <section class="view active" id="view-vault">
+
+      <!-- CONTROL ROW -->
+      <div class="control-row">
+        <div class="search-box">
+          <span class="search-ico">⌕</span>
+          <input class="search-inp" id="vaultSearch" placeholder="SEARCH VAULT..." type="text" />
+        </div>
+        <div class="selects">
+          <select class="sel" id="fGenre">
+            <option value="">ALL GENRES</option>
+            <option>Sci-Fi</option><option>Horror</option><option>Thriller</option>
+            <option>Drama</option><option>Action</option><option>Romance</option><option>Comedy</option>
+          </select>
+          <select class="sel" id="fRating">
+            <option value="">ALL RATINGS</option>
+            <option value="5">★★★★★  5</option><option value="4">★★★★  4</option>
+            <option value="3">★★★  3</option><option value="2">★★  2</option><option value="1">★  1</option>
+          </select>
+          <select class="sel" id="fRec">
+            <option value="">ALL</option>
+            <option value="Yes">✓ WATCH</option>
+            <option value="No">✕ SKIP</option>
+          </select>
+          <select class="sel" id="fSort">
+            <option value="rating_desc">RATING ↓</option>
+            <option value="year_desc">NEWEST</option>
+            <option value="year_asc">OLDEST</option>
+            <option value="title">A → Z</option>
+          </select>
+        </div>
+        <div class="layout-btns">
+          <button class="lay-btn active" id="btnGrid" title="Grid">⊞</button>
+          <button class="lay-btn" id="btnList" title="List">≡</button>
+        </div>
+      </div>
+
+      <!-- MOOD PILLS -->
+      <div class="mood-row">
+        <span class="mood-eyebrow">VIBE FILTER</span>
+        <div class="mood-pills" id="moodPills"></div>
+        <button class="mood-clear hidden" id="moodClear">✕ CLEAR</button>
+      </div>
+
+      <!-- STREAMING FILTER -->
+      <div class="stream-row">
+        <span class="mood-eyebrow">WHERE TO WATCH</span>
+        <div class="stream-pills" id="streamPills"></div>
+      </div>
+
+      <!-- STATS RIBBON -->
+      <div class="ribbon" id="ribbon"></div>
+
+      <!-- GRID -->
+      <div class="movie-grid" id="movieGrid"></div>
+    </section>
+
+    <!-- ══════════════════ DISCOVER VIEW ══════════════════ -->
+    <section class="view" id="view-discover">
+      <div class="page-header">
+        <h2 class="page-title">DISCOVER</h2>
+        <p class="page-sub">Search The Movie Database — add any film to your vault in one click.</p>
+        <div class="api-chips">
+          <span class="api-chip amber">⚡ SOURCE: themoviedb.org</span>
+          <span class="api-chip dim">Set TMDB_API_KEY in .env for live results</span>
+        </div>
+      </div>
+      <div class="discover-search">
+        <input class="big-input" id="discoverInput" placeholder="SEARCH ANY FILM IN THE UNIVERSE..." type="text" />
+        <button class="big-btn" id="discoverBtn">SEARCH</button>
+      </div>
+      <div class="discover-grid" id="discoverGrid"></div>
+    </section>
+
+    <!-- ══════════════════ ADD VIEW ══════════════════ -->
+    <section class="view" id="view-add">
+      <div class="form-wrap">
+        <div class="page-header">
+          <h2 class="page-title">LOG A FILM</h2>
+          <p class="page-sub">Add a movie to your vault. Use TMDB search to auto-fill everything.</p>
+        </div>
+
+        <!-- TMDB prefill -->
+        <div class="prefill-box" id="prefillBox">
+          <div class="prefill-search">
+            <input class="prefill-inp" id="prefillInput" placeholder="SEARCH TMDB TO AUTO-FILL POSTER, OVERVIEW, YEAR..." type="text" />
+            <button class="prefill-btn" id="prefillBtn">FETCH</button>
+          </div>
+          <div class="prefill-results" id="prefillResults"></div>
+        </div>
+
+        <div class="or-divider"><span>OR FILL MANUALLY</span></div>
+
+        <!-- FORM -->
+        <div class="add-form">
+          <!-- Hidden TMDB fields -->
+          <input type="hidden" id="f-tmdb-id" />
+          <input type="hidden" id="f-poster" />
+
+          <div class="frow">
+            <div class="fgrp full">
+              <label class="flabel">TITLE <span class="req">*</span></label>
+              <input class="finput" id="f-title" placeholder="e.g. Annihilation" type="text" />
+            </div>
+          </div>
+          <div class="frow">
+            <div class="fgrp">
+              <label class="flabel">GENRE <span class="req">*</span></label>
+              <select class="finput" id="f-genre">
+                <option value="">Pick genre</option>
+                <option>Sci-Fi</option><option>Horror</option><option>Thriller</option>
+                <option>Drama</option><option>Action</option><option>Romance</option>
+                <option>Comedy</option><option>Documentary</option><option>Animation</option><option>Other</option>
+              </select>
+            </div>
+            <div class="fgrp">
+              <label class="flabel">YEAR</label>
+              <input class="finput" id="f-year" placeholder="2024" type="number" min="1888" max="2099" />
+            </div>
+          </div>
+          <div class="frow">
+            <div class="fgrp">
+              <label class="flabel">DIRECTOR</label>
+              <input class="finput" id="f-director" placeholder="e.g. Alex Garland" type="text" />
+            </div>
+            <div class="fgrp">
+              <label class="flabel">YOUR RATING <span class="req">*</span></label>
+              <div class="star-row" id="starRow">
+                <span class="star" data-v="1">★</span><span class="star" data-v="2">★</span>
+                <span class="star" data-v="3">★</span><span class="star" data-v="4">★</span>
+                <span class="star" data-v="5">★</span>
+              </div>
+              <input type="hidden" id="f-rating" />
+            </div>
+          </div>
+          <div class="frow">
+            <div class="fgrp full">
+              <label class="flabel">RECOMMEND? <span class="req">*</span></label>
+              <div class="rec-row">
+                <button class="rec-opt" data-v="Yes" id="rYes">✓ WATCH IT</button>
+                <button class="rec-opt" data-v="No"  id="rNo">✕ SKIP IT</button>
+              </div>
+              <input type="hidden" id="f-recommendation" />
+            </div>
+          </div>
+          <div class="frow">
+            <div class="fgrp full">
+              <label class="flabel">OVERVIEW</label>
+              <textarea class="finput ftextarea" id="f-overview" placeholder="What's it about?"></textarea>
+            </div>
+          </div>
+          <div class="frow">
+            <div class="fgrp">
+              <label class="flabel">MOOD TAGS <span class="hint">(comma-separated)</span></label>
+              <input class="finput" id="f-moods" placeholder="atmospheric, mind-bending, slow-burn" type="text" />
+            </div>
+            <div class="fgrp">
+              <label class="flabel">STREAMING PLATFORMS <span class="hint">(comma-separated)</span></label>
+              <input class="finput" id="f-streaming" placeholder="Netflix, Prime Video" type="text" />
+            </div>
+          </div>
+          <button class="submit-btn" id="addSubmit">◈ VAULT THIS FILM</button>
+          <p class="form-msg" id="addMsg"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════ STATS VIEW ══════════════════ -->
+    <section class="view" id="view-stats">
+      <div class="stats-wrap">
+        <div class="page-header">
+          <h2 class="page-title">ANALYTICS</h2>
+        </div>
+        <div class="stat-cards" id="statCards"></div>
+        <div class="two-col">
+          <div class="chart-box" id="genreChart"></div>
+          <div class="chart-box" id="streamChart"></div>
+        </div>
+        <div class="chart-box" id="moodCloud"></div>
+        <div class="explorer-box">
+          <h3 class="explorer-title">⌘ API ENDPOINTS</h3>
+          <div class="endpoint-list" id="endpointList"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── MODAL ── -->
+  <div class="modal-overlay" id="overlay">
+    <div class="modal" id="modal">
+      <button class="modal-x" id="modalClose">✕</button>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- ── TOAST ── -->
+  <div class="toast" id="toast"></div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
